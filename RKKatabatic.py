@@ -171,7 +171,7 @@ class Katabatic(Integrator):
         
         Fluxes = np.empty([(self.nvars)+2],'float')
         Fluxes[0] = user.LWO/(user.rho*user.Cp)
-        Fluxes[1] = user.rho*user.Cd*(y[1]-y[0])
+        Fluxes[1] = -user.rho*user.Cd*(y[1]-y[0])
         Fluxes[2] = (blackdar[2]**2)*Ri*(1/user.dn)*(y[6]-y[5])
         Fluxes[3] = (blackdar[3]**2)*Ri*(1/user.dn)*(y[7]-y[6])
         Fluxes[4] = 0.0
@@ -185,14 +185,13 @@ class Katabatic(Integrator):
 #        Fluxes[(self.nvars/2)+1:(self.nvars)] = (blackdar[0:-1]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+1:(self.nvars-1)] - \
 #                y[(self.nvars/2):(self.nvars-2)])
         Fluxes[-1] = 0.0
-        
-        f[0] = y[0]-0.004167
+        f[0] = (1/(2*(user.dn**2)))*(y[0]-G_temp)*(Fluxes[1]-Fluxes[0]) 
         f[1:(self.nvars/2)-2] = (1/(2*(user.dn**2)))*(y[2:(self.nvars/2)-1] - \
                 y[0:(self.nvars/2)-3])*(Fluxes[2:(self.nvars/2)-1]-Fluxes[1:(self.nvars/2)-2]) + \
                 user.gamma*np.sin(alpha)*y[(self.nvars/2)+1:-2]
         f[(self.nvars/2)] = 0.0 #wind speed at ground
         f[(self.nvars/2)+1:-2] = (1/(2*(user.dn**2)))*(y[(self.nvars/2)+2:-1]-y[(self.nvars/2):-3]) + \
-                ((-np.abs(user.g))*np.sin(alpha)/user.Theta_L)*y[1:(self.nvars/2)-2]
+                ((user.g)*np.sin(alpha)/user.Theta_L)*y[1:(self.nvars/2)-2]
         f[-1] = 0 #wind speed at the top level
         return f
     
