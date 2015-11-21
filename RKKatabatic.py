@@ -66,7 +66,7 @@ class Integrator:
             'adaptvars'
         return out
 
-    def derivs(self, y, t):
+    def derivs(self, y, t,Fluxes,blackdar):
         raise ValueError('derivs5 needs to be overrideen in the derived class')
         return None
 
@@ -83,7 +83,7 @@ class Integrator:
         bsum = np.zeros_like(yold)
         estError = np.zeros_like(yold)
         # vector k1 in lab4 equation 3.9
-        derivArray[0, :] = self.derivs2(yold, timeStep)[:]
+        derivArray[0, :] = self.derivs(yold, timeStep,Fluxes,blackdar)[:]
 
         # calculate step
         # c1=c_i in lab 4 notation, but c2=c_i - c^*_i
