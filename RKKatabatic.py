@@ -8,6 +8,7 @@ import numpy as np
 from collections import namedtuple
 import matplotlib.pyplot as plt
 import yaml
+import pandas as pd
 
 def rkck_init():
     # %
@@ -83,7 +84,7 @@ class Integrator:
         bsum = np.zeros_like(yold)
         estError = np.zeros_like(yold)
         # vector k1 in lab4 equation 3.9
-        derivArray[0, :] = self.derivs(yold, timeStep,Fluxes,blackdar)[:]
+        derivArray[0, :] = self.derivs(yold, timeStep)[:]
 
         # calculate step
         # c1=c_i in lab 4 notation, but c2=c_i - c^*_i
@@ -95,7 +96,7 @@ class Integrator:
                 bsum = bsum + b[i, j] * derivArray[j, :]
             # vectors k2 through k6 in lab4 
 #           pdb.set_trace()
-            derivArray[i + 1, :] = self.derivs5(y + deltaT * bsum, timeStep + a[i] * deltaT)[:]
+            derivArray[i + 1, :] = self.derivs(y + deltaT * bsum, timeStep + a[i] * deltaT)[:]
             # partial sum of error in lab4 \Delta_est
             #
             #  sum the error term
@@ -143,6 +144,8 @@ class Katabatic(Integrator):
              self.initvars.Theta4,self.initvars.U1,self.initvars.U2,
              self.initvars.U3,self.initvars.U4])
         self.nvars = len(self.yinit)
+        timevars = namedtuple('timevars',self.config['timevars'].keys())
+        self.time = timevars(**self.config['timevars'])
         return None
         
     def __init__(self, coeffFileName):
@@ -150,21 +153,15 @@ class Katabatic(Integrator):
         self.set_yinit()
     ###Nvars will always be an even number because there is one more flux level
     ###than layers for both theta and u... so dividing by 2 will never be an issue
-    def derivs(self,y,t,Fluxes,blackdar):
+   
+
+    def derivs(self,y,t):
         user = self.uservars
+        time = self.time
         alpha = (2*np.pi/360)*user.alpha
         Ri = (1-5*user.Ri)**2
         f = np.empty([self.nvars],'float')
         G_temp = (user.LWO/(user.sigma*user.epsilon))**0.25
-        
-        f[0] = G_temp + (y[0]-G_temp)**(-user.cool*user.dt)
-        f[1:(self.nvars/2)-2] = (1/(2*(self.dn**2)))*(y[2:(self.nvars/2)-1] - \
-                y[0:(self.nvars/2)-3])*(Fluxes[2:(self.nvars/2)-1]-Fluxes[1:(self.nvars/2)-2]) + \
-                user.gamma*np.sin(alpha)*y[(self.nvars/2)+1:-2]
-        f[(self.nvars/2)] = 0.0 #wind speed at ground
-        f[(self.nvars/2)+1:-2] = (1/(2*(self.dn**2)))*(y[(self.nvars/2)+2:-1]-y[(self.nvars/2):-3]) + \
-                ((-np.abs(user.g))*np.sin(alpha)/user.Theta_L)*y[1:(self.nvars/2)-2]
-        f[-1] = 0 #wind speed at the top level
         
         blackdar = np.empty([(self.nvars/2)+1],'float')
         blackdar[0] = 0.0
@@ -172,12 +169,58 @@ class Katabatic(Integrator):
         for i in np.arange(1,self.nvars/2):
             blackdar[i] = user.lamb/(1+(user.lamb/(user.k*i*user.dn)))
         
+        Fluxes = np.empty([(self.nvars)+2],'float')
         Fluxes[0] = user.LWO/(user.rho*user.Cp)
         Fluxes[1] = user.rho*user.Cd*(y[1]-y[0])
-        Fluxes[2:(self.nvars/2)] = (blackdar[2:(self.nvars/2)]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+2:-1] - \
-                y[(self.nvars/2)+1:-2])
-        Fluxes[(self.nvars/2)+1:(self.nvars)+1] = (blackdar[0:-1]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+1:-1] - \
-                y[(self.nvars/2):-2])
+        Fluxes[2] = (blackdar[2]**2)*Ri*(1/user.dn)*(y[6]-y[5])
+        Fluxes[3] = (blackdar[3]**2)*Ri*(1/user.dn)*(y[7]-y[6])
+        Fluxes[4] = 0.0
+        Fluxes[5] = 0.0
+        Fluxes[6] = (blackdar[1]**2)*Ri*(1/user.dn)*(y[5]-y[4])
+        Fluxes[7] = (blackdar[2]**2)*Ri*(1/user.dn)*(y[6]-y[5])
+        Fluxes[8] = (blackdar[3]**2)*Ri*(1/user.dn)*(y[7]-y[6])
+        Fluxes[9] = 0.0
+#        Fluxes[2:(self.nvars/2)] = (blackdar[2:(self.nvars/2)]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+2:-1] - \
+#                y[(self.nvars/2)+1:-2])
+#        Fluxes[(self.nvars/2)+1:(self.nvars)] = (blackdar[0:-1]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+1:(self.nvars-1)] - \
+#                y[(self.nvars/2):(self.nvars-2)])
+        Fluxes[-1] = 0.0
+        
+        f[0] = y[0]-0.004167
+        f[1:(self.nvars/2)-2] = (1/(2*(user.dn**2)))*(y[2:(self.nvars/2)-1] - \
+                y[0:(self.nvars/2)-3])*(Fluxes[2:(self.nvars/2)-1]-Fluxes[1:(self.nvars/2)-2]) + \
+                user.gamma*np.sin(alpha)*y[(self.nvars/2)+1:-2]
+        f[(self.nvars/2)] = 0.0 #wind speed at ground
+        f[(self.nvars/2)+1:-2] = (1/(2*(user.dn**2)))*(y[(self.nvars/2)+2:-1]-y[(self.nvars/2):-3]) + \
+                ((-np.abs(user.g))*np.sin(alpha)/user.Theta_L)*y[1:(self.nvars/2)-2]
+        f[-1] = 0 #wind speed at the top level
+        return f
+    
+    def timeloop5fixed(self):
+        t = self.timevars
+        yold = self.yinit
+        yError = np.zeros_like(yold)
+        yvals = [yold]
+        errorList = [yError]
+        timeSteps = np.arange(t.tstart, t.tend, t.dt)
+        for theTime in timeSteps[:-1]:
+            yold, yError, newTime = self.rkckODE5(yold, theTime, t.dt)
+            yvals.append(yold)
+            errorList.append(yError)
+        yvals = np.array(yvals).squeeze()
+        errorVals = np.array(errorList).squeeze()
+        return (timeSteps, yvals, errorVals) 
 
-theSolver = Katabatic('4LayerKatabatic.yaml')
-           
+
+theSolver=Katabatic('4LayerKflow.yaml')
+TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
+
+
+
+
+
+
+
+
+
+        
