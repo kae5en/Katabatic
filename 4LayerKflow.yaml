@@ -1,0 +1,6 @@
+initvars: {Theta1: 283.199, Theta2: 283.189, Theta3: 283.179, Theta4: 283.169, U1: 0.0,
+  U2: 0.0, U3: 0.0, U4: 0.0}
+timevars: {dt: 0.125, tend: 50, tstart: 0.0}
+uservars: {Cd: 0.001, Cp: 1004.0, LWO: -60.0, Rd: 287.0, Ri: 0.1, Theta_L: 283.169,
+  alpha: 25.0, cool: 5.698e-06, dn: 1.0, epsilon: 0.9, g: 9.8, gamma: -0.01, k: 0.4,
+  lamb: 100.0, rho: 1.2, sigma: 5.67e-08}
