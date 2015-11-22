@@ -180,12 +180,6 @@ class Katabatic(Integrator):
             length_MetOffice[h] = 1/((user.lamb*user.k*zf[h])/(user.lamb+(user.k*zf[h])))
         print(length_MetOffice)
         
-        '''defining the neutral mixing length used by Bretherton/Blackdar'''
-        length_Bretherton = np.empty([Varct/2],'float')
-        length_Bretherton[0] = 0.0
-        for h in np.arange(1,(Varct/2)):
-            length_Bretherton[h] = user.lamb/(1+(user.lamb/(user.k*zf[h])))
-            
         '''defining the momentum eddy diffusivity'''
         K_h = np.empty([Varct/2],'float')
         K_h[0:8] = (length_MetOffice[0:8]**2)*Ri*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
