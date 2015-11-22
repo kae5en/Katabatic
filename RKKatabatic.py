@@ -173,17 +173,24 @@ class Katabatic(Integrator):
         G_temp = (user.LWO/(user.sigma*user.epsilon))**0.25
         zf = np.arange(0.0,user.Top,user.dn) #array with height levels
 
-        '''defining the neutral mixing length'''
-        length_m = np.empty([Varct/2],'float')
-        length_m[0]=0.0
+        '''defining the neutral mixing length used by the Met Office'''
+        length_MetOffice = np.empty([Varct/2],'float')
+        length_MetOffice[0]=0.0
         for h in np.arange(1,(Varct/2)):
-            length_m[h] = 1/((user.lamb*user.k*zf[h])/(user.lamb+(user.k*zf[h])))
-        print(length_m)
+            length_MetOffice[h] = 1/((user.lamb*user.k*zf[h])/(user.lamb+(user.k*zf[h])))
+        print(length_MetOffice)
+        
+        '''defining the neutral mixing length used by Bretherton/Blackdar'''
+        length_Bretherton = np.empty([Varct/2],'float')
+        length_Bretherton[0] = 0.0
+        for h in np.arange(1,(Varct/2)):
+            length_Bretherton[h] = user.lamb/(1+(user.lamb/(user.k*zf[h])))
+            
         '''defining the momentum eddy diffusivity'''
         K_h = np.empty([Varct/2],'float')
-        K_h[0:8] = (length_m[0:8]**2)*Ri*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
+        K_h[0:8] = (length_MetOffice[0:8]**2)*Ri*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
                     y[(Varct/2):(Varct-2)])
-        K_h[9] = (length_m[9]**2)*Ri*(1/user.dn)*(ambient_wind-y[(Varct-1)])
+        K_h[9] = (length_MetOffice[9]**2)*Ri*(1/user.dn)*(ambient_wind-y[(Varct-1)])
         
         '''defining the parameterization for turbulent stress'''
         '''There is an issue with the 9th layer, potential temperature is increasing
