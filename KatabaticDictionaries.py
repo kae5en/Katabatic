@@ -14,10 +14,10 @@ out_dict['initvars']=dict(Theta01=283.15,Theta02=283.14,Theta03=283.13,
                         Theta07=283.09,Theta08=283.08,Theta09=283.07,
                         Theta10=283.06, U01=0.0,U02=0.0,U03=0.0,U04=0.0,
                         U05=0.0,U06=0.0,U07=0.0,U08=0.0,U09=0.0,U10=0.0)
-out_dict['uservars']=dict(rho=1.2,g=9.8,gamma=-0.01,Rd=287.,TransferCoef=0.001,
-                        Cp=1004.,alpha=25.,lamb=50.,k=0.4,LWO=60.,
+out_dict['uservars']=dict(rho=1.2,g=9.81,gamma=0.001,Rd=287.,TransferCoef=0.001,
+                        Cp=1004.,alpha=5.,lamb=50.,k=0.4,LWO=60.,
                         sigma=5.67*(10**-8),epsilon=0.9,cool=5.698*(10**-6),
-                        dn=1.0,Ri=0.1,wind_aloft=0.0,Drag=0.2,Top=10.0)
+                        dn=1.0,Ri=0.1,wind_aloft=0.0,Drag=0.19,Top=10.0)
 #Below, I'm writing a .yaml file called 4LayerKflow... the 'w' means write.
 #I then dump my dictionary into the yaml file, and I use this yaml file in my
 #katabatic flow code
