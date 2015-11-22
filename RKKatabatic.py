@@ -67,7 +67,7 @@ class Integrator:
             'adaptvars'
         return out
 
-    def derivs(self, y, t,Fluxes,blackdar):
+    def derivs(self, y, t):
         raise ValueError('derivs5 needs to be overrideen in the derived class')
         return None
 
@@ -139,14 +139,16 @@ class Katabatic(Integrator):
         #read in theta, flux, and u
         initvars = namedtuple('initvars', self.config['initvars'].keys())
         self.initvars = initvars(**self.config['initvars'])
+        
+        '''probably a more elegant way to do this... just don't know how yet'''
         self.yinit = np.array(
-            [self.initvars.Theta1,self.initvars.Theta2,self.initvars.Theta3,
-             self.initvars.Theta4,self.initvars.Theta5,self.initvars.Theta6,
-             self.initvars.Theta7,self.initvars.Theta8,self.initvars.Theta9,
-             self.initvars.Theta10,self.initvars.U1,self.initvars.U2,
-             self.initvars.U3,self.initvars.U4,self.initvars.U5,
-             self.initvars.U6,self.initvars.U7,self.initvars.U8,
-             self.initvars.U9,self.initvars.U10])
+            [self.initvars.Theta01,self.initvars.Theta02,self.initvars.Theta03,
+             self.initvars.Theta04,self.initvars.Theta05,self.initvars.Theta06,
+             self.initvars.Theta07,self.initvars.Theta08,self.initvars.Theta09,
+             self.initvars.Theta10,self.initvars.U01,self.initvars.U02,
+             self.initvars.U03,self.initvars.U04,self.initvars.U05,
+             self.initvars.U06,self.initvars.U07,self.initvars.U08,
+             self.initvars.U09,self.initvars.U10])
         self.nvars = len(self.yinit)
         timevars = namedtuple('timevars',self.config['timevars'].keys())
         self.time = timevars(**self.config['timevars'])
@@ -163,61 +165,54 @@ class Katabatic(Integrator):
         user = self.uservars
         time = self.time
         alpha = (2*np.pi/360)*user.alpha
+        ambient_wind = user.wind_aloft/np.sin(alpha)
+        Varct = int(self.nvars)
+        '''stability function'''
         Ri = (1-5*user.Ri)**2
-        f = np.empty([self.nvars],'float')
+        f = np.empty([Varct],'float')
         G_temp = (user.LWO/(user.sigma*user.epsilon))**0.25
+        zf = np.arange(0.0,user.Top,user.dn) #array with height levels
+
+        '''defining the neutral mixing length'''
+        length_m = np.empty([Varct/2],'float')
+        length_m[0]=0.0
+        for h in np.arange(1,(Varct/2)):
+            length_m[h] = 1/((user.lamb*user.k*zf[h])/(user.lamb+(user.k*zf[h])))
+        print(length_m)
+        '''defining the momentum eddy diffusivity'''
+        K_h = np.empty([Varct/2],'float')
+        K_h[0:8] = (length_m[0:8]**2)*Ri*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
+                    y[(Varct/2):(Varct-2)])
+        K_h[9] = (length_m[9]**2)*Ri*(1/user.dn)*(ambient_wind-y[(Varct-1)])
         
-        blackdar = np.empty([(self.nvars/2)+1],'float')
-        blackdar[0] = 0.0
-        blackdar[-1] = 0.0
-        for i in np.arange(1,(self.nvars/2)):
-            blackdar[i] = user.lamb/(1+(user.lamb/(user.k*i*user.dn)))
-        
-        Fluxes = np.empty([(self.nvars)+2],'float')
-        Fluxes[0] = user.LWO/(user.rho*user.Cp)
-        Fluxes[1] = -user.rho*user.Cd*(y[1]-y[0])
-        Fluxes[2] = (blackdar[2]**2)*Ri*(1/(user.dn)**2)*(y[12]-y[11])*(y[2]-y[1])
-        Fluxes[3] = (blackdar[3]**2)*Ri*(1/user.dn)*(y[13]-y[12])*(y[3]-y[2])
-        Fluxes[4] = (blackdar[4]**2)*Ri*(1/user.dn)*(y[14]-y[13])*(y[4]-y[3])
-        Fluxes[5] = (blackdar[5]**2)*Ri*(1/user.dn)*(y[15]-y[14])*(y[5]-y[4])
-        Fluxes[6] = (blackdar[6]**2)*Ri*(1/user.dn)*(y[16]-y[15])*(y[6]-y[5])
-        Fluxes[7] = (blackdar[7]**2)*Ri*(1/user.dn)*(y[17]-y[16])*(y[7]-y[6])
-        Fluxes[8] = (blackdar[8]**2)*Ri*(1/user.dn)*(y[18]-y[17])*(y[8]-y[7])
-        Fluxes[9] = (blackdar[9]**2)*Ri*(1/user.dn)*(y[19]-y[18])*(y[9]-y[8])
-        Fluxes[10] = 0.0
-        Fluxes[11] = (blackdar[0]**2)*Ri*(1/(user.dn)**2)*(y[0]-0)*(y[0]-0)
-        Fluxes[12] = (blackdar[1]**2)*Ri*(1/user.dn)*((y[1]-y[0])**2)
-        Fluxes[13] = (blackdar[2]**2)*Ri*(1/user.dn)*((y[2]-y[1])**2)
-        Fluxes[14] = (blackdar[3]**2)*Ri*(1/user.dn)*((y[3]-y[2])**2)
-        Fluxes[15] = (blackdar[4]**2)*Ri*(1/user.dn)*((y[4]-y[3])**2)
-        Fluxes[16] = (blackdar[5]**2)*Ri*(1/user.dn)*((y[5]-y[4])**2)
-        Fluxes[17] = (blackdar[6]**2)*Ri*(1/user.dn)*((y[6]-y[5])**2)
-        Fluxes[18] = (blackdar[7]**2)*Ri*(1/user.dn)*((y[7]-y[6])**2)
-        Fluxes[19] = (blackdar[8]**2)*Ri*(1/user.dn)*((y[8]-y[7])**2)
-        Fluxes[20] = (blackdar[9]**2)*Ri*(1/user.dn)*((y[9]-y[8])**2)
-        Fluxes[21] = 0.0
-#        Fluxes[2:(self.nvars/2)] = (blackdar[2:(self.nvars/2)]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+2:-1] - \
-#                y[(self.nvars/2)+1:-2])
-#        Fluxes[(self.nvars/2)+1:(self.nvars)] = (blackdar[0:-1]**2)*Ri*(1/user.dn)*(y[(self.nvars/2)+1:(self.nvars-1)] - \
-#                y[(self.nvars/2):(self.nvars-2)])
-        
-        f[0] = (1/(2*(user.dn**2)))*(y[0]-G_temp)*(Fluxes[1]-Fluxes[0]) 
-        f[1:(self.nvars/2)-2] = (1/(2*(user.dn**2)))*(y[2:(self.nvars/2)-1] - \
-                y[0:(self.nvars/2)-3])*(Fluxes[2:(self.nvars/2)-1]-Fluxes[1:(self.nvars/2)-2]) + \
-                user.gamma*np.sin(alpha)*y[(self.nvars/2)+1:(self.nvars)-2]
-        f[(self.nvars/2)-1] = (1/(2*(user.dn**2)))*(y[(self.nvars/2)-1] - \
-                user.Theta_L)*(Fluxes[(self.nvars/2)]-Fluxes[(self.nvars/2)-1]) + \
-                user.gamma*np.sin(alpha)*y[(self.nvars/2)-1]
-        f[self.nvars/2] = 0.0
-#        f[(self.nvars/2)] =  ((1/(2*(user.dn**2)))*(y[self.nvars/2]-0.0)*(Fluxes[(self.nvars/2)+2]-Fluxes[(self.nvars/2)+1])+ \
-#                ((user.g)*np.sin(alpha)/user.Theta_L)*y[0])
-        f[(self.nvars/2)+1:(self.nvars-2)] = (1/(2*(user.dn**2)))*(y[(self.nvars/2)+2:(self.nvars-1)]- \
-                y[(self.nvars/2):(self.nvars-3)])*(Fluxes[(self.nvars/2)+3:self.nvars]-Fluxes[(self.nvars/2)+2:self.nvars-1]) + \
-                ((user.g)*np.sin(alpha)/user.Theta_L)*y[1:(self.nvars/2)-2]      
-#        f[self.nvars-1] = 0.0
-        f[self.nvars-1]=((1/(2*(user.dn**2)))*(user.wind_aloft-y[self.nvars-2])*(Fluxes[self.nvars+1]-Fluxes[self.nvars]))+ \
-                ((user.g)*np.sin(alpha)/user.Theta_L)*y[(self.nvars/2)-1] + \
-                y[(self.nvars-1)]**2
+        '''defining the parameterization for turbulent stress'''
+        '''There is an issue with the 9th layer, potential temperature is increasing
+           thus causing the wind speeds to increase dramatically (and move upslope)
+           Probably a diffusion mishap, just can't figure out exactly how to handle 
+           this layer, it has some communication issues/perhaps my system has
+           balance issues and this layer just happens to be the sink?
+        '''
+        Flux_U = np.empty([(Varct/2)+1],'float')
+        Flux_T = np.empty([(Varct/2)+1],'float')
+        Flux_U[0] = -user.TransferCoef*np.abs(y[Varct/2])*(1/user.dn)*(y[Varct/2]-0.0)
+        Flux_U[1:((Varct/2)-1)] = K_h[1:9]*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
+                    y[(Varct/2):(Varct-2)])
+        Flux_U[-1] = 0.0
+        Flux_T[0] = (user.LWO/(user.rho*user.Cp))*(y[0]-G_temp)
+        Flux_T[1] = -user.rho*user.TransferCoef*(y[1]-y[0])
+        Flux_T[2:((Varct/2)-1)] = K_h[2:9]*(1/user.dn)*(y[2:((Varct/2)-1)]- \
+                    y[1:((Varct/2)-2)])
+        Flux_T[-1] = 0.0
+       
+        '''Creating the ambient potential temperature profile'''
+        Theta_L = np.arange(283.15,283.04,-0.01) 
+        '''The first section of the derivative is for the potential temperature profile'''
+        f[0:((Varct/2)-1)] = (1/user.dn)*(Flux_T[1:-1]-Flux_T[0:-2]) + \
+                    (user.gamma*np.sin(alpha)*y[(Varct/2):-1])
+        '''The second section of the derivative is for the wind speed profile'''
+        f[(Varct/2):-1] = (1/user.dn)*(Flux_U[1:-1]-Flux_U[0:-2]) + \
+                    ((user.g)*np.sin(alpha)/Theta_L[0:9])*y[0:((Varct/2)-1)] - \
+                    user.Drag*((y[(Varct/2):(Varct-1)])**2)       
         return f
     
     def timeloop5fixed(self):
