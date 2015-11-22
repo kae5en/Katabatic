@@ -203,15 +203,18 @@ class Katabatic(Integrator):
         Flux_T[2:((Varct/2)-1)] = K_h[2:9]*(1/user.dn)*(y[2:((Varct/2)-1)]- \
                     y[1:((Varct/2)-2)])
         Flux_T[-1] = 0.0
-       
+        
         '''Creating the ambient potential temperature profile'''
         Theta_L = np.arange(283.15,283.04,-0.01) 
+        '''Creating the difference in ambient and flow potential temperature'''
+        Theta_diff = np.empty([Varct/2],'float')
+        Theta_diff[0:((Varct/2)-1)] = Theta_L[0:((Varct/2)-1)]- y[0:((Varct/2)-1)]
         '''The first section of the derivative is for the potential temperature profile'''
         f[0:((Varct/2)-1)] = (1/user.dn)*(Flux_T[1:-1]-Flux_T[0:-2]) + \
                     (user.gamma*np.sin(alpha)*y[(Varct/2):-1])
         '''The second section of the derivative is for the wind speed profile'''
         f[(Varct/2):-1] = (1/user.dn)*(Flux_U[1:-1]-Flux_U[0:-2]) + \
-                    ((user.g)*np.sin(alpha)/Theta_L[0:9])*y[0:((Varct/2)-1)] - \
+                    ((user.g)*np.sin(alpha)/Theta_L[0:9])*(Theta_diff[0:((Varct/2)-1)]) - \
                     user.Drag*((y[(Varct/2):(Varct-1)])**2)       
         return f
     
