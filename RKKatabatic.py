@@ -167,8 +167,11 @@ class Katabatic(Integrator):
         alpha = (2*np.pi/360)*user.alpha
         ambient_wind = user.wind_aloft/np.sin(alpha)
         Varct = int(self.nvars)
-        '''stability function'''
-        Ri = (1-5*user.Ri)**2
+        Ri_rad = -(user.g*user.LWO*15.0)/(user.Theta_synoptic*user.rho*user.Cp*(user.synoptic_wind**3))
+        '''stability function, Ri_param'''
+        #Ri = (1-5*Ri)**2 #Richardson parameter with fixed Ri
+        Ri = (1-5*Ri_rad)**2 #Richardson parameter with radiation Ri
+        
         f = np.empty([Varct],'float')
         G_temp = (user.LWO/(user.sigma*user.epsilon))**0.25
         zf = np.arange(0.0,user.Top,user.dn) #array with height levels
