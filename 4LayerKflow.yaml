@@ -1,5 +1,5 @@
-initvars: {Theta01: 283.15, Theta02: 283.14, Theta03: 283.13, Theta04: 283.12, Theta05: 283.11,
-  Theta06: 283.1, Theta07: 283.09, Theta08: 283.08, Theta09: 283.07, Theta10: 283.06,
+initvars: {Theta01: 283.15, Theta02: 283.145, Theta03: 283.14, Theta04: 283.135, Theta05: 283.13,
+  Theta06: 283.125, Theta07: 283.12, Theta08: 283.115, Theta09: 283.11, Theta10: 283.105,
   U01: 0.0, U02: 0.0, U03: 0.0, U04: 0.0, U05: 0.0, U06: 0.0, U07: 0.0, U08: 0.0,
   U09: 0.0, U10: 0.0}
 timevars: {dt: 0.25, tend: 1000, tstart: 0.0}

@@ -9,10 +9,10 @@ import yaml #I use a yaml file to store my dictionary
 out_dict = dict() #this initialized the general dictionary itself
 #below, I assign sub-dicionaries to my general one, and within those subdictionaries, I assign variables
 out_dict['timevars']=dict(tstart=0.0,dt=0.25,tend=1000)
-out_dict['initvars']=dict(Theta01=283.15,Theta02=283.14,Theta03=283.13,
-                        Theta04=283.12,Theta05=283.11,Theta06=283.10,
-                        Theta07=283.09,Theta08=283.08,Theta09=283.07,
-                        Theta10=283.06, U01=0.0,U02=0.0,U03=0.0,U04=0.0,
+out_dict['initvars']=dict(Theta01=283.15,Theta02=283.145,Theta03=283.14,
+                        Theta04=283.135,Theta05=283.13,Theta06=283.125,
+                        Theta07=283.12,Theta08=283.115,Theta09=283.11,
+                        Theta10=283.105, U01=0.0,U02=0.0,U03=0.0,U04=0.0,
                         U05=0.0,U06=0.0,U07=0.0,U08=0.0,U09=0.0,U10=0.0)
 out_dict['uservars']=dict(rho=1.2,g=9.81,gamma=0.001,Rd=287.,TransferCoef=0.001,
                         Cp=1004.,alpha=5.,lamb=50.,k=0.4,LWO=60.,

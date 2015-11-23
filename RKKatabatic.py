@@ -178,7 +178,6 @@ class Katabatic(Integrator):
         length_MetOffice[0]=0.0
         for h in np.arange(1,(Varct/2)):
             length_MetOffice[h] = 1/((user.lamb*user.k*zf[h])/(user.lamb+(user.k*zf[h])))
-        print(length_MetOffice)
         
         '''defining the momentum eddy diffusivity'''
         K_h = np.empty([Varct/2],'float')
@@ -200,7 +199,7 @@ class Katabatic(Integrator):
                     y[(Varct/2):(Varct-2)])
         Flux_U[-1] = 0.0
         Flux_T[0] = (user.LWO/(user.rho*user.Cp))*(y[0]-G_temp)
-        Flux_T[1] = -user.rho*user.TransferCoef*(y[1]-y[0])
+        Flux_T[1] = user.rho*user.TransferCoef*(y[1]-y[0])
         Flux_T[2:((Varct/2)-1)] = K_h[2:9]*(1/user.dn)*(y[2:((Varct/2)-1)]- \
                     y[1:((Varct/2)-2)])
         Flux_T[-1] = 0.0
@@ -217,7 +216,6 @@ class Katabatic(Integrator):
         f[(Varct/2):-1] = (1/user.dn)*(Flux_U[1:-1]-Flux_U[0:-2]) + \
                     ((user.g)*np.sin(alpha)/Theta_L[0:((Varct/2)-1)])*(Theta_diff[0:((Varct/2)-1)]) - \
                     user.Drag*((y[(Varct/2):(Varct-1)])**2) 
-        print(Theta_diff)
         return f
     
     def timeloop5fixed(self):
@@ -240,7 +238,7 @@ theSolver=Katabatic('4LayerKflow.yaml')
 TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
 
 
-
+    
 
 
 
