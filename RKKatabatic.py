@@ -184,6 +184,7 @@ class Katabatic(Integrator):
         K_h[0:8] = (length_MetOffice[0:8]**2)*Ri*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
                     y[(Varct/2):(Varct-2)])
         K_h[9] = (length_MetOffice[9]**2)*Ri*(1/user.dn)*(ambient_wind-y[(Varct-1)])
+
         
         '''defining the parameterization for turbulent stress'''
         '''There is an issue with the 9th layer, potential temperature is increasing
