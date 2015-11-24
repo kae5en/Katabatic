@@ -197,7 +197,7 @@ class Katabatic(Integrator):
         '''
         Flux_U = np.empty([(Varct/2)+1],'float')
         Flux_T = np.empty([(Varct/2)+1],'float')
-        Flux_U[0] = user.TransferCoef*np.abs(y[Varct/2])*(1/user.dn)*(y[Varct/2]-0.0)
+        Flux_U[0] = -user.TransferCoef*np.abs(y[Varct/2])*(1/user.dn)*(y[Varct/2]-0.0)
         Flux_U[1:((Varct/2)-1)] = K_h[1:9]*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
                     y[(Varct/2):(Varct-2)])
         Flux_U[-1] = 0.0
