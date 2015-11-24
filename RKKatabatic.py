@@ -9,6 +9,10 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 import yaml
 import pandas as pd
+import matplotlib.colors as colors
+import matplotlib.cm as cmx
+import matplotlib.colorbar as colorbar
+import os,glob
 
 def rkck_init():
     # %
@@ -187,6 +191,7 @@ class Katabatic(Integrator):
         K_h[0:8] = (length_MetOffice[0:8]**2)*Ri*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
                     y[(Varct/2):(Varct-2)])
         K_h[9] = (length_MetOffice[9]**2)*Ri*(1/user.dn)*(ambient_wind-y[(Varct-1)])
+
         
         '''defining the parameterization for turbulent stress'''
         '''There is an issue with the 9th layer, potential temperature is increasing
@@ -240,7 +245,17 @@ class Katabatic(Integrator):
 theSolver=Katabatic('4LayerKflow.yaml')
 TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
 
+Wind = np.empty((10,len(TimeVals)))
+Temp = np.empty((10,len(TimeVals)))
+for i in range(len(TimeVals)):
+    Placer = yVals[i]
+    Temp[:,i] = Placer[0:10]
+    Wind[:,i] = Placer[10:20]
 
+
+
+
+    
     
 
 
