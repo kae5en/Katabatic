@@ -2,7 +2,8 @@ initvars: {Theta01: 283.15, Theta02: 283.145, Theta03: 283.14, Theta04: 283.135,
   Theta06: 283.125, Theta07: 283.12, Theta08: 283.115, Theta09: 283.11, Theta10: 283.105,
   U01: 0.0, U02: 0.0, U03: 0.0, U04: 0.0, U05: 0.0, U06: 0.0, U07: 0.0, U08: 0.0,
   U09: 0.0, U10: 0.0}
-timevars: {dt: 0.25, tend: 1000, tstart: 0.0}
-uservars: {Cp: 1004.0, Drag: 0.19, LWO: 60.0, Rd: 287.0, Ri: 0.1, Top: 10.0, TransferCoef: 0.001,
-  alpha: 5.0, cool: 5.698e-06, dn: 1.0, epsilon: 0.9, g: 9.81, gamma: 0.001, k: 0.4,
-  lamb: 50.0, rho: 1.2, sigma: 5.67e-08, wind_aloft: 0.0}
+timevars: {dt: 0.25, tend: 500, tstart: 0.0}
+uservars: {Cp: 1004.0, Drag: 0.19, LWO: 60.0, Rd: 287.0, Ri: 0.1, Theta_synoptic: 283.055,
+  Top: 10.0, TransferCoef: 0.001, alpha: 5.0, cool: 5.698e-06, dn: 1.0, epsilon: 0.9,
+  g: 9.81, gamma: 0.001, k: 0.4, lamb: 50.0, rho: 1.2, sigma: 5.67e-08, synoptic_wind: 2.5,
+  wind_aloft: 0.0}
