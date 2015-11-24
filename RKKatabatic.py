@@ -64,6 +64,8 @@ class Integrator:
         # read in dt tstart tend
         timevars = namedtuple('timevars',config['timevars'].keys())
         self.timevars = timevars(**config['timevars'])
+        adaptvars = namedtuple('adaptvars', config['adaptvars'].keys())
+        self.adaptvars = adaptvars(**config['adaptvars'])
         self.rkckConsts = rkck_init()
 
     def __str__(self):
@@ -120,20 +122,151 @@ class Integrator:
 #       pdb.set_trace()
         return (y, estError, timeStep)
         
-        def timeloop5fixed(self):
-            t = self.timevars
-            yold = self.yinit
-            yError = np.zeros_like(yold)
-            yvals = [yold]
-            errorList = [yError]
-            timeSteps = np.arange(t.tstart, t.tend, t.dt)
-            for theTime in timeSteps[:-1]:
-                yold, yError, newTime = self.rkckODE5(yold, theTime, t.dt)
-                yvals.append(yold)
-                errorList.append(yError)
-            yvals = np.array(yvals).squeeze()
-            errorVals = np.array(errorList).squeeze()
-            return (timeSteps, yvals, errorVals)
+    def timeloop5fixed(self):
+        t = self.timevars
+        yold = self.yinit
+        yError = np.zeros_like(yold)
+        yvals = [yold]
+        errorList = [yError]
+        timeSteps = np.arange(t.tstart, t.tend, t.dt)
+        for theTime in timeSteps[:-1]:
+            yold, yError, newTime = self.rkckODE5(yold, theTime, t.dt)
+            yvals.append(yold)
+            errorList.append(yError)
+        yvals = np.array(yvals).squeeze()
+        errorVals = np.array(errorList).squeeze()
+        return (timeSteps, yvals, errorVals)
+
+    def timeloop5Err(self):
+        """return errors as well as values
+        """
+        t = self.timevars
+        a = self.adaptvars
+        i = self.initvars
+        nvars = self.nvars
+        oldTime = t.tstart
+        olddt = t.dt
+        yold = self.yinit
+        yerror = np.zeros_like(yold)
+        num = 0
+        badsteps = 0
+        goodsteps = 0
+        timeVals = []
+        yvals = []
+        errorList = []
+        while(oldTime < t.tend):
+            timeVals.append(oldTime)
+            yvals.append(yold)
+            errorList.append(yerror)
+            if(num > a.maxsteps):
+                raise Exception('num > maxsteps')
+            # start out with goodstep false and
+            # try different sizes for the next step
+            # until one meets the error conditions
+            # then move onto next step by setting
+            # goodstep to true
+            goodStep = False
+            failSteps = 0
+            while(not goodStep):
+                # to exit this loop, need to
+                # get the estimated error smaller than
+                # the desired error set by the relative
+                # tolerance
+                if(failSteps > a.maxfail):
+                    raise Exception('failSteps > a.maxfail')
+                #
+                # try a timestep, we may need to reverse this
+                #
+                ynew, yerror, timeStep = self.rkckODE5(yold, oldTime, olddt)
+                # print("try a step: : ", ynew)
+                #
+                # lab 5 section 4.2.3
+                # find the desired tolerance by multiplying the relative
+                # tolerance (RTOL) times the value of y
+                # compare this to the error estimate returnd from rkckODE5
+                # atol takes care of the possibility that y~0 at some point
+                #
+                errtest = 0.
+                for i in range(nvars):
+                    errtest = errtest + \
+                        (yerror[i] / (a.atol + a.rtol * np.abs(ynew[i])))**2.0
+                errtest = np.sqrt(errtest / nvars)
+                #
+                # lab5 equation 4.13, S
+                #
+                dtchange = a.s * (1.0 / errtest)**0.2
+                # print("dtchange, errtest, timeStep: ",
+                #       dtchange, errtest, timeStep, ynew, yerror)
+                if (errtest > 1.0):
+                    # estimated error is too big so
+                    # reduce the timestep and retry
+                    # dtFailMax ~ 0.5, which guarantees that
+                    # the new timestep is reduced by at least a
+                    # factor of 2
+                    # dtFailMin~0.1, which means that we don't trust
+                    # the estimate to reduce the timestep by more
+                    # than a factor of 10 in one loop
+                    if(dtchange > a.dtfailmax):
+                        olddt = a.dtfailmax * olddt
+                    elif (dtchange < a.dtfailmin):
+                        olddt = a.dtfailmin * olddt
+                    else:
+                        olddt = dtchange * olddt
+                    if (timeStep + olddt == timeStep):
+                        raise Exception('step smaller than machine precision')
+                    failSteps = failSteps + 1
+                    #
+                    # undo the timestep since the error wasn't small enough
+                    #
+                    ynew = yold
+                    timeStep = oldTime
+                    # go back to top and see if this olddt produices
+                    # a better yerrror
+                else:
+                    # errtest < 1, so we're happy
+                    # try to enlarge the timestep by a factor of dtChange > 1
+                    # but keep it smaller than dtpassmax
+                    # try enlarging the timestep bigger for next time
+                    # dtpassmin ~ 0.1 and dtpassmax ~ 5
+                    if (abs((1.0 - dtchange)) > a.dtpassmin):
+                        if(dtchange > a.dtpassmax):
+                            dtnew = a.dtpassmax * olddt
+                        else:
+                            dtnew = dtchange * olddt
+                    else:
+                        # don't bother changing the step size if
+                        # the change is less than dtpassmin
+                        dtnew = olddt
+                    goodStep = True
+                    #
+                    # overwrite the old timestep with the new one
+                    #
+                    oldTime = timeStep
+                    yold = ynew
+                    # go back up to top while(timeStep < t.tend)
+                    goodsteps = goodsteps + 1
+                #
+                # this is number of times we decreased the step size without
+                #  advancing
+                #
+                badsteps = badsteps + failSteps
+            # special case if we're within one ortwo timesteps of the end
+            # otherwise, set dt to the new timestep size
+            if(timeStep + dtnew > t.tend):
+                olddt = t.tend - timeStep
+            elif(timeStep + 2.0 * dtnew > t.tend):
+                olddt = (t.tend - timeStep) / 2.0
+            else:
+                olddt = dtnew
+        timeVals = np.array(timeVals).squeeze()
+        yvals = np.array(yvals).squeeze()
+        errorVals = np.array(errorList).squeeze()
+        self.timevals = timeVals
+        self.yvals = yvals
+        self.errorVals = errorVals
+        return (timeVals, yvals, errorVals)
+        
+            
 
 
 class Katabatic(Integrator):
@@ -252,7 +385,8 @@ for i in range(len(TimeVals)):
     Temp[:,i] = Placer[0:10]
     Wind[:,i] = Placer[10:20]
 
-
+theVariableSolver=Katabatic('4LayerKflow.yaml')
+TimeVals_a,yVals_a,errorVals_a=theVariableSolver.timeloop5Err()
 
 
     

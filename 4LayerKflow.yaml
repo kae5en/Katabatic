@@ -1,3 +1,5 @@
+adaptvars: {atol: 1.0e-05, dtfailmax: 0.5, dtfailmin: 0.1, dtpassmax: 5.0, dtpassmin: 0.1,
+  maxfail: 60.0, maxsteps: 2000.0, rtol: 1.0e-05, s: 0.9}
 initvars: {Theta01: 283.15, Theta02: 283.145, Theta03: 283.14, Theta04: 283.135, Theta05: 283.13,
   Theta06: 283.125, Theta07: 283.12, Theta08: 283.115, Theta09: 283.11, Theta10: 283.105,
   U01: 0.0, U02: 0.0, U03: 0.0, U04: 0.0, U05: 0.0, U06: 0.0, U07: 0.0, U08: 0.0,

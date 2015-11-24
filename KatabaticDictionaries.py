@@ -19,11 +19,15 @@ out_dict['uservars']=dict(rho=1.2,g=9.81,gamma=0.001,Rd=287.,TransferCoef=0.001,
                         sigma=5.67*(10**-8),epsilon=0.9,cool=5.698*(10**-6),
                         dn=1.0,Ri=0.1,wind_aloft=0.0,Drag=0.19,Top=10.0,
                         synoptic_wind = 2.5, Theta_synoptic = 283.055)
+out_dict['adaptvars']=dict(dtpassmin=0.1,dtfailmax=0.5,dtfailmin=0.1,s=0.9,
+                            rtol=1.0e-05,atol=1.0e-05,maxsteps=2000.0,
+                            maxfail=60.0,dtpassmax=5.0)
 #Below, I'm writing a .yaml file called 4LayerKflow... the 'w' means write.
 #I then dump my dictionary into the yaml file, and I use this yaml file in my
 #katabatic flow code
 with open('4LayerKflow.yaml','w') as f:
     yaml.dump(out_dict,f)
+
 
 deficit = dict()
 deficit['timevars']=dict(tstart=0.0,dt=0.25,tend=1000)
