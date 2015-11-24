@@ -9,6 +9,10 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 import yaml
 import pandas as pd
+import matplotlib.colors as colors
+import matplotlib.cm as cmx
+import matplotlib.colorbar as colorbar
+import os,glob
 
 def rkck_init():
     # %
@@ -241,7 +245,17 @@ class Katabatic(Integrator):
 theSolver=Katabatic('4LayerKflow.yaml')
 TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
 
+Wind = np.empty((10,len(TimeVals)))
+Temp = np.empty((10,len(TimeVals)))
+for i in range(len(TimeVals)):
+    Placer = yVals[i]
+    Temp[:,i] = Placer[0:10]
+    Wind[:,i] = Placer[10:20]
 
+
+
+
+    
     
 
 
