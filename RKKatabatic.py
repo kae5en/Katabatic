@@ -13,6 +13,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cmx
 import matplotlib.colorbar as colorbar
 import os,glob
+import time
 
 def rkck_init():
     # %
@@ -335,7 +336,7 @@ class Katabatic(Integrator):
         '''
         Flux_U = np.empty([(Varct/2)+1],'float')
         Flux_T = np.empty([(Varct/2)+1],'float')
-        Flux_U[0] = -user.TransferCoef*np.abs(y[Varct/2])*(1/user.dn)*(y[Varct/2]-0.0)
+        Flux_U[0] = -user.TransferCoef*np.abs(y[Varct/2])**2 #Mahrt, 1998
         Flux_U[1:((Varct/2)-1)] = K_h[1:9]*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
                     y[(Varct/2):(Varct-2)])
         Flux_U[-1] = 0.0
@@ -374,23 +375,25 @@ class Katabatic(Integrator):
         errorVals = np.array(errorList).squeeze()
         return (timeSteps, yvals, errorVals) 
 
-
+'''fixed time-step solutions'''
+tic_fixed = time.time()
 theSolver=Katabatic('4LayerKflow.yaml')
 TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
+elapsed_fixed = time.time() - tic_fixed
 
+'''adapted time-step solutions'''
+tic_adapt = time.time()
+theVariableSolver=Katabatic('4LayerKflow.yaml')
+TimeVals_a,yVals_a,errorVals_a=theVariableSolver.timeloop5Err()
+elapsed_adapt = time.time() - tic_adapt
+
+#separating the wind and temepratures for fixed time step solution    
 Wind = np.empty((10,len(TimeVals)))
 Temp = np.empty((10,len(TimeVals)))
 for i in range(len(TimeVals)):
     Placer = yVals[i]
     Temp[:,i] = Placer[0:10]
-    Wind[:,i] = Placer[10:20]
-
-theVariableSolver=Katabatic('4LayerKflow.yaml')
-TimeVals_a,yVals_a,errorVals_a=theVariableSolver.timeloop5Err()
-
-
-    
-    
+    Wind[:,i] = Placer[10:20]    
 
 
 
