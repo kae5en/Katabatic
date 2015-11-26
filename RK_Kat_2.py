@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Nov 25 12:37:29 2015
+
+@author: everard
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Thu Nov 19 18:04:36 2015
 
 @author: Student
@@ -336,14 +343,14 @@ class Katabatic(Integrator):
         '''
         Flux_U = np.empty([(Varct/2)+1],'float')
         Flux_T = np.empty([(Varct/2)+1],'float')
-        Flux_U[0] = -user.TransferCoef*np.abs(y[Varct/2])**2 #Mahrt, 1998
+        Flux_U[0] = -user.TransferCoef*np.abs(y[Varct/2])**2 #Bulk Aerodynamic: Mahrt, 1998
         Flux_U[1:((Varct/2)-1)] = K_h[1:9]*(1/user.dn)*(y[((Varct/2)+1):(Varct-1)]- \
                     y[(Varct/2):(Varct-2)])
         Flux_U[-1] = 0.0
-        Flux_T[0] = user.TransferCoef*y[Varct/2]*(y[0]-G_temp)
-        #Flux_T[1] = user.rho*user.TransferCoef*(y[1]-y[0])
-        Flux_T[1:((Varct/2)-1)] = K_h[1:9]*(1/user.dn)*(y[1:((Varct/2)-1)]- \
-                    y[0:((Varct/2)-2)])
+        Flux_T[0] = user.TransferCoef*y[Varct/2]*(y[0]-G_temp) #Bulk Aerodynamic: Mahrt, 1998
+        Flux_T[1] = user.rho*user.TransferCoef*(y[1]-y[0])
+        Flux_T[2:((Varct/2)-1)] = K_h[2:9]*(1/user.dn)*(y[2:((Varct/2)-1)]- \
+                    y[1:((Varct/2)-2)])
         Flux_T[-1] = 0.0
         
         '''Creating the ambient potential temperature profile'''
