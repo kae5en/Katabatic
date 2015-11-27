@@ -8,7 +8,7 @@ Created on Fri Nov 20 16:47:29 2015
 import yaml #I use a yaml file to store my dictionary
 out_dict = dict() #this initialized the general dictionary itself
 #below, I assign sub-dicionaries to my general one, and within those subdictionaries, I assign variables
-out_dict['timevars']=dict(tstart=0.0,dt=0.25,tend=5000)
+out_dict['timevars']=dict(tstart=0.0,dt=0.25,tend=500)
 out_dict['initvars']=dict(Theta01=0.0,Theta02=0.0,Theta03=0.0,
                         Theta04=0.0,Theta05=0.0, Theta06=0.0,Theta07=0.0,
                         Theta08=0.0,Theta09=0.0,Theta10=0.0,

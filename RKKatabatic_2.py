@@ -365,7 +365,7 @@ class Katabatic(Integrator):
         Flux_T[8] = -K_h[8]*(1/user.dn)*(y[8]-y[7])
         Flux_T[9] = -K_h[9]*(1/user.dn)*(y[9]-y[8])
         Flux_T[10] = 0.0
-        Flux_U[0] = 0.0
+        Flux_U[0] = user.Drag*(y[10]**3)
         Flux_U[1] = -K_h[1]*(1/user.dn)*(y[11]-y[10])
         Flux_U[2] = -K_h[2]*(1/user.dn)*(y[12]-y[11])
         Flux_U[3] = -K_h[3]*(1/user.dn)*(y[13]-y[12])
