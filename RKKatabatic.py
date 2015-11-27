@@ -305,9 +305,9 @@ class Katabatic(Integrator):
         alpha = (2*np.pi/360)*user.alpha
         ambient_wind = user.wind_aloft/np.sin(alpha)
         Varct = int(self.nvars)
-        Ri_rad = -(user.g*user.LWO*15.0)/(user.Theta_synoptic*user.rho*user.Cp*(user.synoptic_wind**3))
+        Ri_rad = (user.g*user.LWO*15.0)/(user.Theta_synoptic*user.rho*user.Cp*(user.synoptic_wind**3))
         '''stability function, Ri_param'''
-        #Ri = (1-5*Ri)**2 #Richardson parameter with fixed Ri
+        #Ri = (1-5*user.Ri)**2 #Richardson parameter with fixed Ri
         Ri = (1-5*Ri_rad)**2 #Richardson parameter with radiation Ri
         
         f = np.empty([Varct],'float')
@@ -394,10 +394,23 @@ for i in range(len(TimeVals)):
     Placer = yVals[i]
     Temp[:,i] = Placer[0:10]
     Wind[:,i] = Placer[10:20]    
+Heights = np.arange(0.0,10.0,1.0)
 
+theInitialFig, theInitialAx = plt.subplots(1,1)
+L1 = theInitialAx.plot(Temp[:,-1],Heights,'r-',label='Final Temperature Profile')
+L2 = theInitialAx.plot(Temp[:,0],Heights,'k-',label='Initial Temperature Profile')
+theInitialAx.legend(loc='best')
+theInitialAx.set_title('Potential Temperature')
+theInitialAx.set_xlabel('Potential Temperature [K]')
+theInitialAx.set_ylabel('Height [m]')
 
-
-
+theInitialFig, theInitialAx = plt.subplots(1,1)
+L1 = theInitialAx.plot(Wind[:,-1],Heights,'r-',label='Final Wind Profile')
+L2 = theInitialAx.plot(Wind[:,0],Heights,'k-',label='Initial Wind Profile')
+theInitialAx.legend(loc='best')
+theInitialAx.set_title('Katabatic Flow')
+theInitialAx.set_xlabel('Wind Speed [ms-1]')
+theInitialAx.set_ylabel('Height [m]')
 
 
         
