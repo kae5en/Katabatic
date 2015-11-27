@@ -6,5 +6,5 @@ initvars: {Theta01: 0.0, Theta02: 0.0, Theta03: 0.0, Theta04: 0.0, Theta05: 0.0,
 timevars: {dt: 0.25, tend: 5000, tstart: 0.0}
 uservars: {Cp: 1004.0, Drag: 0.19, LWO: 60.0, Rd: 287.0, Ri: 0.1, Theta_synoptic: 283.055,
   Top: 10.0, TransferCoef: 0.001, alpha: 5.0, cool: 5.698e-06, dn: 1.0, epsilon: 0.9,
-  g: 9.81, gamma: 0.001, k: 0.4, lamb: 50.0, rho: 1.2, sigma: 5.67e-08, synoptic_wind: 2.5,
+  g: 9.81, gamma: 0.01, k: 0.4, lamb: 50.0, rho: 1.2, sigma: 5.67e-08, synoptic_wind: 2.5,
   top_shear: 2.0, wind_aloft: 0.0}
