@@ -355,6 +355,9 @@ class Katabatic(Integrator):
         Flux_U = np.zeros(((Varct/2)+1),'float')
         Flux_T = np.empty(((Varct/2)+1),'float')
         Flux_T[0] = user.TransferCoef*((Theta_L[0]+y[0])-G_temp)
+#        for i in range(1,9):
+#            Flux_T[i] = -K_h[i]*(1/user.dn)*(y[i]-y[i-1])
+#        Flux_T[1:9] = -K_h[1:9]*(1/user.dn)*(y[1:9]-y[0:8])
         Flux_T[1] = -K_h[1]*(1/user.dn)*(y[1]-y[0])
         Flux_T[2] = -K_h[2]*(1/user.dn)*(y[2]-y[1])
         Flux_T[3] = -K_h[3]*(1/user.dn)*(y[3]-y[2])
@@ -365,7 +368,7 @@ class Katabatic(Integrator):
         Flux_T[8] = -K_h[8]*(1/user.dn)*(y[8]-y[7])
         Flux_T[9] = -K_h[9]*(1/user.dn)*(y[9]-y[8])
         Flux_T[10] = 0.0
-        Flux_U[0] = user.Drag*(y[10]**3)
+        Flux_U[0] = user.Drag*(y[10]**2)
         Flux_U[1] = -K_h[1]*(1/user.dn)*(y[11]-y[10])
         Flux_U[2] = -K_h[2]*(1/user.dn)*(y[12]-y[11])
         Flux_U[3] = -K_h[3]*(1/user.dn)*(y[13]-y[12])
@@ -374,7 +377,7 @@ class Katabatic(Integrator):
         Flux_U[6] = -K_h[6]*(1/user.dn)*(y[16]-y[15])
         Flux_U[7] = -K_h[7]*(1/user.dn)*(y[17]-y[16])
         Flux_U[8] = -K_h[8]*(1/user.dn)*(y[18]-y[17])
-        Flux_U[9] = -K_h[9]*(1/user.dn)*(y[19]-y[18])
+        Flux_U[9] = 0.0
         Flux_U[10] = 0.0
 
         '''Now derivatves'''
@@ -389,16 +392,16 @@ class Katabatic(Integrator):
         f[8] = (1/user.dn)*(Flux_T[9]-Flux_T[8]) + user.gamma*np.sin(alpha)*y[18]
         f[9] = (1/user.dn)*(Flux_T[10]-Flux_T[9]) + user.gamma*np.sin(alpha)*y[19]
 
-        f[10] = (1/user.dn)*(Flux_U[1]-Flux_U[0]) - user.g*np.sin(alpha)*y[0]/Theta_L[0] - 4*user.Drag*(y[10]**2)
-        f[11] = (1/user.dn)*(Flux_U[2]-Flux_U[1]) - user.g*np.sin(alpha)*y[1]/Theta_L[1] - 3*user.Drag*(y[11]**2)
-        f[12] = (1/user.dn)*(Flux_U[3]-Flux_U[2]) - user.g*np.sin(alpha)*y[2]/Theta_L[2] - 2*user.Drag*(y[12]**2)
+        f[10] = (1/user.dn)*(Flux_U[1]-Flux_U[0]) - user.g*np.sin(alpha)*y[0]/Theta_L[0] - user.Drag*(y[10]**2)
+        f[11] = (1/user.dn)*(Flux_U[2]-Flux_U[1]) - user.g*np.sin(alpha)*y[1]/Theta_L[1] - user.Drag*(y[11]**2)
+        f[12] = (1/user.dn)*(Flux_U[3]-Flux_U[2]) - user.g*np.sin(alpha)*y[2]/Theta_L[2] - user.Drag*(y[12]**2)
         f[13] = (1/user.dn)*(Flux_U[4]-Flux_U[3]) - user.g*np.sin(alpha)*y[3]/Theta_L[3] - user.Drag*(y[13]**2)
-        f[14] = (1/user.dn)*(Flux_U[5]-Flux_U[4]) - user.g*np.sin(alpha)*y[4]/Theta_L[4] - 0.5*user.Drag*(y[14]**2)
-        f[15] = (1/user.dn)*(Flux_U[6]-Flux_U[5]) - user.g*np.sin(alpha)*y[5]/Theta_L[5] - 0.25*user.Drag*(y[15]**2)
-        f[16] = (1/user.dn)*(Flux_U[7]-Flux_U[6]) - user.g*np.sin(alpha)*y[6]/Theta_L[6] - (1/8)*user.Drag*(y[16]**2)
-        f[17] = (1/user.dn)*(Flux_U[8]-Flux_U[7]) - user.g*np.sin(alpha)*y[7]/Theta_L[7] - (1/16)*user.Drag*(y[17]**2)
-        f[18] = (1/user.dn)*(Flux_U[9]-Flux_U[8]) - user.g*np.sin(alpha)*y[8]/Theta_L[8] - (1/32)*user.Drag*(y[19]**2)
-        f[19] = (1/user.dn)*(Flux_U[10]-Flux_U[9]) - user.g*np.sin(alpha)*y[9]/Theta_L[9]- (1/64)*user.Drag*(y[19]**2)        
+        f[14] = (1/user.dn)*(Flux_U[5]-Flux_U[4]) - user.g*np.sin(alpha)*y[4]/Theta_L[4] - user.Drag*(y[14]**2)
+        f[15] = (1/user.dn)*(Flux_U[6]-Flux_U[5]) - user.g*np.sin(alpha)*y[5]/Theta_L[5] - user.Drag*(y[15]**2)
+        f[16] = (1/user.dn)*(Flux_U[7]-Flux_U[6]) - user.g*np.sin(alpha)*y[6]/Theta_L[6] - user.Drag*(y[16]**2)
+        f[17] = (1/user.dn)*(Flux_U[8]-Flux_U[7]) - user.g*np.sin(alpha)*y[7]/Theta_L[7] - user.Drag*(y[17]**2)
+        f[18] = (1/user.dn)*(Flux_U[9]-Flux_U[8]) - user.g*np.sin(alpha)*y[8]/Theta_L[8] - user.Drag*(y[18]**2)
+        f[19] = (1/user.dn)*(Flux_U[10]-Flux_U[9]) - user.g*np.sin(alpha)*y[9]/Theta_L[9]- user.topShear*(y[19]**2)        
         return f       
         return f
     
