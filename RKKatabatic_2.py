@@ -338,12 +338,7 @@ class Katabatic(Integrator):
         K_h[10] = (length_MetOffice[10]**2)*Ri*(1/user.dn)*(user.synoptic_wind-y[19])
         
         '''defining the parameterization for turbulent stress'''
-        '''There is an issue with the 9th layer, potential temperature is increasing
-           thus causing the wind speeds to increase dramatically (and move upslope)
-           Probably a diffusion mishap, just can't figure out exactly how to handle 
-           this layer, it has some communication issues/perhaps my system has
-           balance issues and this layer just happens to be the sink?
-        '''
+     
         Flux_U = np.zeros(((Varct/2)+1),'float')
         Flux_T = np.empty(((Varct/2)+1),'float')
         Flux_T[0] = user.TransferCoef*((Theta_L[0]-y[0])-G_temp)
