@@ -310,9 +310,15 @@ class Katabatic(Integrator):
         alpha = (2*np.pi/360)*user.alpha
 #        ambient_wind = user.wind_aloft/np.sin(alpha)
         Varct = int(self.nvars)
+<<<<<<< HEAD
 #        Ri_rad = (user.g*user.LWO*15.0)/(user.Theta_synoptic*user.rho*user.Cp*(user.synoptic_wind**3))
         ###Creating the ambient potential temperature profile###
         Theta_L = np.arange(283.15,270.04,-0.002) 
+=======
+        #Ri_rad = (user.g*user.LWO*15.0)/(user.Theta_synoptic*user.rho*user.Cp*(user.synoptic_wind**3))
+        '''Creating the ambient potential temperature profile'''
+        Theta_L = np.arange(283.15,270.04,-0.09) 
+>>>>>>> 94cfc0e6081aca704aa3f8a8690759607d5b190e
         Layer_temp = np.empty((Varct/2),'float')
         Layer_temp[:] = Theta_L[0:(Varct/2)]-y[0:(Varct/2)]
         ###stability function, Ri_param###
@@ -343,10 +349,18 @@ class Katabatic(Integrator):
         K_h[1:10] = (length_MetOffice[1:10]**2)*Ri*(1/user.dn)*(y[11:20]-y[10:19])
         K_h[10] = (length_MetOffice[10]**2)*Ri*(1/user.dn)*(user.synoptic_wind-y[19])
         
+<<<<<<< HEAD
         ###defining the parameterization for turbulent stress###
         Flux_U = np.zeros(((Varct/2)+1),'float')
         Flux_T = np.empty(((Varct/2)+1),'float')
         Flux_T[0] = user.TransferCoef*((Theta_L[0]+y[0])-G_temp)
+=======
+        '''defining the parameterization for turbulent stress'''
+     
+        Flux_U = np.zeros(((Varct/2)+1),'float')
+        Flux_T = np.empty(((Varct/2)+1),'float')
+        Flux_T[0] = user.TransferCoef*((Theta_L[0]-y[0])-G_temp)
+>>>>>>> 94cfc0e6081aca704aa3f8a8690759607d5b190e
         Flux_T[1:10] = -K_h[1:10]*(1/user.dn)*(y[1:10]-y[0:9])
         Flux_T[10] = 0.0
         
@@ -354,11 +368,18 @@ class Katabatic(Integrator):
         Flux_U[1:10] = -K_h[1:10]*(1/user.dn)*(y[11:20]-y[10:19])
         Flux_U[10] = 0.0
 
+<<<<<<< HEAD
         ###Now derivatves###
         f[0:10] = (1/user.dn)*(Flux_T[1:11]-Flux_T[0:10]) + user.gamma*np.sin(alpha)*y[10:20]
         f[10:20] = (1/user.dn)*(Flux_U[1:11]-Flux_U[0:10]) - \
                 user.g*np.sin(alpha)*y[0:10]/Theta_L[0:10] - \
                 user.Drag*A[0:10]*(y[10:20]**2)
+=======
+        '''Now derivatves'''
+        f[0:10] = (1/user.dn)*(Flux_T[1:11]-Flux_T[0:10]) + user.gamma*np.sin(alpha)*y[10:20]
+        f[10:20] = (1/user.dn)*(Flux_U[1:11]-Flux_U[0:10]) - user.g*np.sin(alpha)*y[0:10]/Theta_L[0:10] - user.Drag*(y[10:20]**2)
+ 
+>>>>>>> 94cfc0e6081aca704aa3f8a8690759607d5b190e
         return f       
     
     def timeloop5fixed(self):
@@ -376,11 +397,33 @@ class Katabatic(Integrator):
         errorVals = np.array(errorList).squeeze()
         return (timeSteps, yvals, errorVals) 
 
+<<<<<<< HEAD
 ###adapted time-step solutions###
+=======
+'''fixed time-step solutions'''
+tic_fixed = time.time()
+theSolver=Katabatic('deviationFlow.yaml')
+TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
+elapsed_fixed = time.time() - tic_fixed
+
+'''adapted time-step solutions'''
+>>>>>>> 94cfc0e6081aca704aa3f8a8690759607d5b190e
 tic_adapt = time.time()
 theVariableSolver=Katabatic('deviationFlow.yaml')
 TimeVals_a,yVals_a,errorVals_a=theVariableSolver.timeloop5Err()
 elapsed_adapt = time.time() - tic_adapt
+<<<<<<< HEAD
+=======
+
+#separating the wind and temepratures for fixed time step solution    
+#Wind = np.empty((10,len(TimeVals)))
+#Temp = np.empty((10,len(TimeVals)))
+#for i in range(len(TimeVals)):
+#    Placer = yVals[i]
+#    Temp[:,i] = Placer[0:10]
+#    Wind[:,i] = Placer[10:20]    
+#Heights = np.arange(0.0,10.0,1.0)
+>>>>>>> 94cfc0e6081aca704aa3f8a8690759607d5b190e
 
 Theta_L = np.arange(283.15,275.04,-0.002) 
 Final = yVals_a[-1]
