@@ -314,7 +314,7 @@ class Katabatic(Integrator):
         Varct = int(self.nvars)
         #Ri_rad = (user.g*user.LWO*15.0)/(user.Theta_synoptic*user.rho*user.Cp*(user.synoptic_wind**3))
         '''Creating the ambient potential temperature profile'''
-        Theta_L = np.arange(283.15,283.04,-0.01) 
+        Theta_L = np.arange(283.15,270.04,-0.09) 
         Layer_temp = np.empty((Varct/2),'float')
         Layer_temp[:] = Theta_L[0:(Varct/2)]-y[0:(Varct/2)]
         '''stability function, Ri_param'''
@@ -334,16 +334,8 @@ class Katabatic(Integrator):
         '''defining the momentum eddy diffusivity'''
         K_h = np.zeros((11),'float')
         K_h[0] = 0.0
-        K_h[1] = (length_MetOffice[1]**2)*Ri*(1/user.dn)*(y[11]-y[10])
-        K_h[2] = (length_MetOffice[2]**2)*Ri*(1/user.dn)*(y[12]-y[11])
-        K_h[3] = (length_MetOffice[3]**2)*Ri*(1/user.dn)*(y[13]-y[12])
-        K_h[4] = (length_MetOffice[4]**2)*Ri*(1/user.dn)*(y[14]-y[13])
-        K_h[5] = (length_MetOffice[5]**2)*Ri*(1/user.dn)*(y[15]-y[14])
-        K_h[6] = (length_MetOffice[6]**2)*Ri*(1/user.dn)*(y[16]-y[15])
-        K_h[7] = (length_MetOffice[7]**2)*Ri*(1/user.dn)*(y[17]-y[16])
-        K_h[8] = (length_MetOffice[8]**2)*Ri*(1/user.dn)*(y[18]-y[17])
-        K_h[9] = (length_MetOffice[9]**2)*Ri*(1/user.dn)*(y[19]-y[18])
-        K_h[10] = (length_MetOffice[10]**2)*Ri*(1/user.dn)*(0.0-y[19])
+        K_h[1:10] = (length_MetOffice[1:10]**2)*Ri*(1/user.dn)*(y[11:20]-y[10:19])
+        K_h[10] = (length_MetOffice[10]**2)*Ri*(1/user.dn)*(user.synoptic_wind-y[19])
         
         '''defining the parameterization for turbulent stress'''
         '''There is an issue with the 9th layer, potential temperature is increasing
@@ -354,56 +346,18 @@ class Katabatic(Integrator):
         '''
         Flux_U = np.zeros(((Varct/2)+1),'float')
         Flux_T = np.empty(((Varct/2)+1),'float')
-        Flux_T[0] = user.TransferCoef*((Theta_L[0]+y[0])-G_temp)
-#        for i in range(1,9):
-#            Flux_T[i] = -K_h[i]*(1/user.dn)*(y[i]-y[i-1])
-#        Flux_T[1:9] = -K_h[1:9]*(1/user.dn)*(y[1:9]-y[0:8])
-        Flux_T[1] = -K_h[1]*(1/user.dn)*(y[1]-y[0])
-        Flux_T[2] = -K_h[2]*(1/user.dn)*(y[2]-y[1])
-        Flux_T[3] = -K_h[3]*(1/user.dn)*(y[3]-y[2])
-        Flux_T[4] = -K_h[4]*(1/user.dn)*(y[4]-y[3])
-        Flux_T[5] = -K_h[5]*(1/user.dn)*(y[5]-y[4])
-        Flux_T[6] = -K_h[6]*(1/user.dn)*(y[6]-y[5])
-        Flux_T[7] = -K_h[7]*(1/user.dn)*(y[7]-y[6])
-        Flux_T[8] = -K_h[8]*(1/user.dn)*(y[8]-y[7])
-        Flux_T[9] = -K_h[9]*(1/user.dn)*(y[9]-y[8])
+        Flux_T[0] = user.TransferCoef*((Theta_L[0]-y[0])-G_temp)
+        Flux_T[1:10] = -K_h[1:10]*(1/user.dn)*(y[1:10]-y[0:9])
         Flux_T[10] = 0.0
         Flux_U[0] = user.Drag*(y[10]**2)
-        Flux_U[1] = -K_h[1]*(1/user.dn)*(y[11]-y[10])
-        Flux_U[2] = -K_h[2]*(1/user.dn)*(y[12]-y[11])
-        Flux_U[3] = -K_h[3]*(1/user.dn)*(y[13]-y[12])
-        Flux_U[4] = -K_h[4]*(1/user.dn)*(y[14]-y[13])
-        Flux_U[5] = -K_h[5]*(1/user.dn)*(y[15]-y[14])
-        Flux_U[6] = -K_h[6]*(1/user.dn)*(y[16]-y[15])
-        Flux_U[7] = -K_h[7]*(1/user.dn)*(y[17]-y[16])
-        Flux_U[8] = -K_h[8]*(1/user.dn)*(y[18]-y[17])
-        Flux_U[9] = 0.0
+        Flux_U[1:10] = -K_h[1:10]*(1/user.dn)*(y[11:20]-y[10:19])
         Flux_U[10] = 0.0
 
         '''Now derivatves'''
-        f[0] = (1/user.dn)*(Flux_T[1]-Flux_T[0]) + user.gamma*np.sin(alpha)*y[10]
-        f[1] = (1/user.dn)*(Flux_T[2]-Flux_T[1]) + user.gamma*np.sin(alpha)*y[11]
-        f[2] = (1/user.dn)*(Flux_T[3]-Flux_T[2]) + user.gamma*np.sin(alpha)*y[12]
-        f[3] = (1/user.dn)*(Flux_T[4]-Flux_T[3]) + user.gamma*np.sin(alpha)*y[13]
-        f[4] = (1/user.dn)*(Flux_T[5]-Flux_T[4]) + user.gamma*np.sin(alpha)*y[14]
-        f[5] = (1/user.dn)*(Flux_T[6]-Flux_T[5]) + user.gamma*np.sin(alpha)*y[15]
-        f[6] = (1/user.dn)*(Flux_T[7]-Flux_T[6]) + user.gamma*np.sin(alpha)*y[16]
-        f[7] = (1/user.dn)*(Flux_T[8]-Flux_T[7]) + user.gamma*np.sin(alpha)*y[17]
-        f[8] = (1/user.dn)*(Flux_T[9]-Flux_T[8]) + user.gamma*np.sin(alpha)*y[18]
-        f[9] = (1/user.dn)*(Flux_T[10]-Flux_T[9]) + user.gamma*np.sin(alpha)*y[19]
-
-        f[10] = (1/user.dn)*(Flux_U[1]-Flux_U[0]) - user.g*np.sin(alpha)*y[0]/Theta_L[0] - user.Drag*(y[10]**2)
-        f[11] = (1/user.dn)*(Flux_U[2]-Flux_U[1]) - user.g*np.sin(alpha)*y[1]/Theta_L[1] - user.Drag*(y[11]**2)
-        f[12] = (1/user.dn)*(Flux_U[3]-Flux_U[2]) - user.g*np.sin(alpha)*y[2]/Theta_L[2] - user.Drag*(y[12]**2)
-        f[13] = (1/user.dn)*(Flux_U[4]-Flux_U[3]) - user.g*np.sin(alpha)*y[3]/Theta_L[3] - user.Drag*(y[13]**2)
-        f[14] = (1/user.dn)*(Flux_U[5]-Flux_U[4]) - user.g*np.sin(alpha)*y[4]/Theta_L[4] - user.Drag*(y[14]**2)
-        f[15] = (1/user.dn)*(Flux_U[6]-Flux_U[5]) - user.g*np.sin(alpha)*y[5]/Theta_L[5] - user.Drag*(y[15]**2)
-        f[16] = (1/user.dn)*(Flux_U[7]-Flux_U[6]) - user.g*np.sin(alpha)*y[6]/Theta_L[6] - user.Drag*(y[16]**2)
-        f[17] = (1/user.dn)*(Flux_U[8]-Flux_U[7]) - user.g*np.sin(alpha)*y[7]/Theta_L[7] - user.Drag*(y[17]**2)
-        f[18] = (1/user.dn)*(Flux_U[9]-Flux_U[8]) - user.g*np.sin(alpha)*y[8]/Theta_L[8] - user.Drag*(y[18]**2)
-        f[19] = (1/user.dn)*(Flux_U[10]-Flux_U[9]) - user.g*np.sin(alpha)*y[9]/Theta_L[9]- user.topShear*(y[19]**2)        
+        f[0:10] = (1/user.dn)*(Flux_T[1:11]-Flux_T[0:10]) + user.gamma*np.sin(alpha)*y[10:20]
+        f[10:20] = (1/user.dn)*(Flux_U[1:11]-Flux_U[0:10]) - user.g*np.sin(alpha)*y[0:10]/Theta_L[0:10] - user.Drag*(y[10:20]**2)
+ 
         return f       
-        return f
     
     def timeloop5fixed(self):
         t = self.timevars
@@ -426,12 +380,12 @@ theSolver=Katabatic('deviationFlow.yaml')
 TimeVals,yVals,errorVals=theSolver.timeloop5fixed()
 elapsed_fixed = time.time() - tic_fixed
 
-'''adapted time-step solutions
+'''adapted time-step solutions'''
 tic_adapt = time.time()
-theVariableSolver=Katabatic('4LayerKflow.yaml')
+theVariableSolver=Katabatic('deviationFlow.yaml')
 TimeVals_a,yVals_a,errorVals_a=theVariableSolver.timeloop5Err()
 elapsed_adapt = time.time() - tic_adapt
-'''
+
 #separating the wind and temepratures for fixed time step solution    
 #Wind = np.empty((10,len(TimeVals)))
 #Temp = np.empty((10,len(TimeVals)))
